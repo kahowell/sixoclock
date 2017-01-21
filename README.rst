@@ -20,7 +20,7 @@ Install from pypi:
 
 ::
 
-    pip install pypi
+    pip install sixoclock
 
 -----
 Usage
