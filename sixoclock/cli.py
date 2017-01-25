@@ -27,12 +27,14 @@ from sixoclock.file import File
 
 class Cli:
     def __init__(self):
+        config = os.path.join(os.path.expanduser('~'), '.sixoclock.yml')
+        self.configuration = Configuration(config)
+
         parser = argparse.ArgumentParser(description='Simple personal backups.')
-        parser.add_argument('--config', help='config file to use')
-        parser.add_argument('--no-log', action='store_true', help='log file')
+        parser.add_argument('--no-log', action='store_true', help='do not log')
         parser.add_argument('--log-file', help='log file')
-        parser.set_defaults(function=self.print_usage, config=os.path.expanduser(os.path.join('~', '.sixoclock.yml')), log_file=None)
-        subparsers = parser.add_subparsers()
+        parser.set_defaults(function=lambda args: parser.print_usage(), log_file=None)
+        subparsers = parser.add_subparsers(title='commands')
 
         backup_parser = subparsers.add_parser('backup', help='perform a backup')
         backup_parser.add_argument('-c', '--collection', help='backup a specific collection')
@@ -61,6 +63,11 @@ class Cli:
         refresh_parser.add_argument('--rebuild', action='store_true', help='remove entries and rebuild the cache')
         refresh_parser.set_defaults(function=self.refresh_cache)
 
+        for name, backend in self.configuration.backends.items():
+            if backend.has_subparser():
+                backend_parser = subparsers.add_parser(name, help='{} backend subcommands'.format(name))
+                backend.contribute_to_subparser(backend_parser)
+
         self.parser = parser
 
     def main(self):
@@ -68,11 +75,7 @@ class Cli:
         log_filename = args.log_file or 'sixoclock.{}.log'.format(int(time.time()))
         if not args.no_log:
             logging.basicConfig(filename=log_filename, level=logging.INFO)
-        self.configuration = Configuration(args.config)
         args.function(args)
-
-    def print_usage(self, args):
-        self.parser.print_usage()
 
     def backup(self, args):
         for name, collection in self.configuration.collections.items():

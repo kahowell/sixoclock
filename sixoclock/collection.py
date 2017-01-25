@@ -46,11 +46,9 @@ class BackupAction(Action):
         with self.source.stream(self.file.uri) as stream:
             logging.info('Storing {} in {}'.format(self.file, self.destination))
             relative_path = self.file.path
-            destination_uri = self.destination.uri
-            if not destination_uri.endswith('/'):
-                destination_uri += '/'
             new_file = File()
-            new_file.uri = self.destination.full_uri(self.destination.uri, relative_path)
+            new_file.uri = self.destination.full_uri(relative_path)
+            print('new_uri in execute', new_file.uri)
             new_file.path = relative_path
             self.destination.put(new_file.uri, stream, mtime=self.file.mtime)
             new_file.mirror_uri = self.destination.uri
@@ -162,8 +160,9 @@ class Mirror:
     def stream(self, uri):
         return self.backend.stream(uri)
 
-    def full_uri(self, base_uri, path):
-        return self.backend.full_uri(base_uri, path)
+    def full_uri(self, path):
+        print('full_uri', self.uri, path)
+        return self.backend.full_uri(self.uri, path)
 
     def put(self, uri, stream, mtime=None):
         self.backend.put(uri, stream, mtime)

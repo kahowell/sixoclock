@@ -16,7 +16,7 @@
 # along with sixoclock.  If not, see <http://www.gnu.org/licenses/>.
 
 from abc import ABCMeta, abstractmethod
-from urllib.parse import urljoin, urlparse
+from urllib.parse import urlparse, urlunparse
 from urllib.request import pathname2url, url2pathname
 import os.path
 
@@ -66,11 +66,21 @@ class Backend(metaclass=ABCMeta):
     def determine_path(self, uri):
         '''Return the absolute path of the given URI.'''
         path = url2pathname(urlparse(uri).path)
-        return os.path.abspath(path)
+        return path
 
     def full_uri(self, base_uri, relative_path):
         '''Construct the uri for a path relative to the base URI.'''
-        if not base_uri.endswith('/'):
-            base_uri += '/'
+        if base_uri.endswith('/'):
+            base_uri = base_uri[:-1]
         path = pathname2url(relative_path)
-        return urljoin(base_uri, path)
+        parsed = urlparse(base_uri)
+        new_url_path = os.path.join(parsed.path, path)
+        return urlunparse((parsed.scheme, parsed.netloc, new_url_path, parsed.params, parsed.query, parsed.fragment))
+
+    def has_subparser(self):
+        '''Override to implement additional CLI commands.'''
+        return False
+
+    def contribute_to_subparser(self, subparsers):
+        '''Add args/commands to the sixoclock CLI.'''
+        pass

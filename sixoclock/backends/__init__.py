@@ -16,3 +16,4 @@
 # along with sixoclock.  If not, see <http://www.gnu.org/licenses/>.
 
 from sixoclock.backends.file import FileBackend
+from sixoclock.backends.gdrive import GoogleDriveBackend

@@ -33,7 +33,11 @@ setup(
     packages=['sixoclock'],
     install_requires=[
         'SQLAlchemy',
+        'google-api-python-client',
+        'http2',
         'humanize',
+        'oauth2client',
+        'python-dateutil',
     ],
     scripts=['bin/sixoclock'],
 )

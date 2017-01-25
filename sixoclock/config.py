@@ -79,5 +79,5 @@ class Configuration:
 
     def config_mirror(self, uri):
         parsed = urlparse(uri)
-        backend = self.backends[parsed.scheme]
+        backend = self.backends[parsed.scheme]  # TODO human-friendly message for missing backend
         return Mirror(backend, uri)
